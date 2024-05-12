@@ -27,11 +27,22 @@ void Player::BindVAO()
 	VAO1.Bind();
 }
 
-void Player::UpdateVertices(float Xspeed, float Yspeed, float Zspeed, glm::vec3 velocity)
+void Player::UpdateVertices(float Xspeed, float Yspeed, float Zspeed)
 {
-	position.x += Xspeed;
+	glm::vec3 a = glm::vec3(Xspeed, 0, Zspeed);
+	float speedMagnitude = glm::length(a);
+	if (speedMagnitude > 0.0f) {
+		a = glm::normalize(a);
+	}
+	
+	/*position.x += Xspeed;
 	position.y += Yspeed;
-    position.z += Zspeed;
+    position.z += Zspeed;*/
+	position += a * speedMagnitude;
+	cout << "current x speed: " << position.x << std::endl;
+	
+	
+	
 }
 
 VBO Player::GetVBO()
@@ -42,43 +53,48 @@ VBO Player::GetVBO()
 void Player::inputs(GLFWwindow* window)
 {
 	float speed = 0.1f;
-	float translationSpeed = speed;
+	float xSpeedVector = 0.0f;
+	float zSpeedVector = 0.0f;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && up) {
 
-		UpdateVertices(0, 0, -speed, glm::vec3(0, 0, 1));
+		//UpdateVertices(0, 0, -speed, glm::vec3(0, 0, 1));
 		//position.z -= translationSpeed;
+		zSpeedVector = -speed;
 
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && down) {
 
-		UpdateVertices(0, 0, speed, glm::vec3(0, 0, 1));
+		//UpdateVertices(0, 0, speed, glm::vec3(0, 0, 1));
 		//position.z += translationSpeed;
+		zSpeedVector = speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && left) {
 
-		UpdateVertices(-speed, 0, 0, glm::vec3(1, 0, 0));
+		//UpdateVertices(-speed, 0, 0, glm::vec3(1, 0, 0));
 		//position.x -= translationSpeed;
+		xSpeedVector = -speed;
 
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && right) {
 
-		UpdateVertices(speed, 0, 0, glm::vec3(1, 0, 0));
+		//UpdateVertices(speed, 0, 0, glm::vec3(1, 0, 0));
 		//position.x += translationSpeed;
+		xSpeedVector = speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
 
-		UpdateVertices(0, speed * 50, 0, glm::vec3(0, 1, 0));
+		//UpdateVertices(0, speed * 50, 0, glm::vec3(0, 1, 0));
 		
 		//position.x += translationSpeed;
 	}
-	
+	UpdateVertices(xSpeedVector, 0, zSpeedVector);
 }
 
 
 
 
 
-bool Player::CheckCollision( Player& otherCube)
+bool Player::CheckSphereCollision( Player& otherCube)
 {
 	float distance_centers = glm::length(position - otherCube.position);
 		
@@ -101,6 +117,22 @@ bool Player::CheckCollision( Player& otherCube)
 
 	// No collision detected
 	return false;
+}
+
+bool Player::AABBCollision(Player& otherCube)
+{
+	
+	// collision x-axis?
+	bool collisionX = position.x + size1 >= otherCube.position.x &&
+		otherCube.position.x + otherCube.size1 >= position.x;
+	// collision y-axis?
+	bool collisionY = position.y + size1 >= otherCube.position.y &&
+		otherCube.position.y + otherCube.size1 >= position.y;
+	// collision z-axis?
+	bool collisionZ = position.z + size1 >= otherCube.position.z &&
+		otherCube.position.z + otherCube.size1 >= position.z;
+	// collision only if on both axes
+	return collisionX && collisionY && collisionZ;
 }
 
 

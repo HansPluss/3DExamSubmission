@@ -133,6 +133,7 @@
     <ClCompile Include="3Dexam.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="MathFunctions.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Resources\ImportedCode\Construct.cpp" />
     <ClCompile Include="Resources\ImportedCode\LSM.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="includes\GLFW\glfw3native.h" />
     <ClInclude Include="includes\glm\mat4x3.hpp" />
     <ClInclude Include="includes\KHR\khrplatform.h" />
+    <ClInclude Include="MathFunctions.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resources\ImportedCode\Construct.h" />
     <ClInclude Include="Resources\ImportedCode\LSM.h" />
@@ -165,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\brick.png" />
+    <Image Include="Resources\Textures\icon.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

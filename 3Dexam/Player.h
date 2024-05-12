@@ -27,6 +27,7 @@ std::array<Vertex, 48> mHouseVertecies;
 	glm::vec3 velocity;
 	glm::vec3 PointPosition;
 	float sphere_radius = 0;
+	float size1 = 1.0f;
 	bool up = true;
 	bool down = true;
 	bool left = true;
@@ -67,6 +68,15 @@ std::array<Vertex, 48> mHouseVertecies;
 		}
 		else if (figure == 2)
 		{
+			
+			VAO1.Bind();
+			VBO1.Bind();
+			glBufferData(GL_ARRAY_BUFFER, mPlaneVertecies.size() * sizeof(Vertex), mPlaneVertecies.data(), GL_STATIC_DRAW);
+			VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+			VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+			VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			VAO1.Unbind();
+			VBO1.Unbind();
 			
 		}
 
@@ -113,7 +123,7 @@ std::array<Vertex, 48> mHouseVertecies;
 		}
 		
 		sphere_radius = a; 
-
+		size1 = scale;
 
 		
 	}
@@ -121,13 +131,14 @@ std::array<Vertex, 48> mHouseVertecies;
 	void DeleteVBOANDVAO();
 	void UnbindVAO();
 	void BindVAO();
-	void UpdateVertices(float Xspeed, float Yspeed, float Zspeed, glm::vec3 velocity);
+	void UpdateVertices(float Xspeed, float Yspeed, float Zspeed);
 	VBO GetVBO();
 	void inputs(GLFWwindow* window);
 
 	void Patrol(std::vector<double> coefficients);
 	
-	bool CheckCollision( Player& otherCube);
+	bool CheckSphereCollision( Player& otherCube);
+	bool AABBCollision(Player& othercube);
 	
 	glm::vec3 calculateBarycentricCoordinates(glm::vec3& cpoint, glm::vec3 v0,glm::vec3 v1, glm::vec3 v2, bool climbable);
 

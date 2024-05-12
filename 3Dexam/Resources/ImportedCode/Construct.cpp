@@ -116,6 +116,49 @@ std::array<Vertex, 6> Construct::Plane(glm::vec3 Color, glm::vec3 PointPosition)
     return PlaneArray;
 }
 
+std::array<Vertex, 100> Construct::Graph(glm::vec4 CubicFunc, float c, int iterations, const char* filename, int start)
+{
+    std::array<Vertex, 100> GraphArray;
+    for (int i = start; i < iterations; ++i) {
+        int index = start - i;
+        float t = static_cast<float>(i);
+        float n = 1.00f;
+        float x = i * n;
+        float y = ((CubicFunc.x) * (x * x * x)) + (CubicFunc.y) * (x * x) + (1 * CubicFunc.z * x) + CubicFunc.w;
+
+        float z = 0.0f;
+
+
+        //derivative
+        float df = 3 * (CubicFunc.x) * x * x + 2 * CubicFunc.y * x + 1 * CubicFunc.z;
+
+
+        
+        GraphArray[i].x = x;
+        GraphArray[i].y = y;
+        GraphArray[i].z = z;
+
+        if (df < 0) {
+            GraphArray[i].r = 1.0f;
+            GraphArray[i].g = 0.0f;
+        }
+        else {
+            GraphArray[i].r = 0.0f;
+            GraphArray[i].g = 1.0f;
+        }
+
+
+        GraphArray[i - start].b = std::abs(z) / (c * iterations); // Adjust for coloring effect
+      
+        //writeToFile(filename, vertex.x, vertex.y, vertex.z,vertex.r, vertex.g, vertex.b);
+
+    }
+    
+    return GraphArray;
+}
+
+
+
 
 
 

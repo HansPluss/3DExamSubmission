@@ -6,12 +6,12 @@
 
 
 
-Texture::Texture(const char* texture1, int num, Shader shaderProgram)
+Texture::Texture(const char* texture1, Shader shaderProgram)
 {
-	ID = num; 
+	ID = 1; 
 
 	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0 + num);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// set the texture wrapping/filtering options (on the currently bound texture object)
@@ -37,12 +37,9 @@ Texture::Texture(const char* texture1, int num, Shader shaderProgram)
 
 
 	shaderProgram.Activate();
-	shaderProgram.setInt("tex0", num);
+	//shaderProgram.setInt("tex0", num);
 
 }
 
-void Texture::UnbindTexture()
-{
-	glBindTexture(GL_TEXTURE_2D, ID);
-}
+
 
