@@ -3,7 +3,9 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
-
+// Following code is from this github repo:
+// https://github.com/HansPluss/Compulsory-2-3DProg
+// 
 // Constructor
 LSM::LSM(const std::vector<double>& xy, int degree) {
     coefficients = leastSquaresMethod(xy, degree);

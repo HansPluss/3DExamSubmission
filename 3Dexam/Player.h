@@ -10,6 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include "Resources/ImportedCode/Construct.h"
+#include "MathFunctions.h"
 
 
 
@@ -19,9 +20,10 @@ private:
 
 
 public:
-std::array<Vertex, 36> mVertecies;
+std::vector<Vertex> mVertecies;
 std::array<Vertex, 6> mPlaneVertecies;
 std::array<Vertex, 48> mHouseVertecies;
+std::vector<Vertex> terrainVertecies;
 	glm::vec3 position;
 	float r, g, b;
 	glm::vec3 velocity;
@@ -34,7 +36,7 @@ std::array<Vertex, 48> mHouseVertecies;
 	bool right = true;
 	bool move = true; 
 	
-	
+	int sign = 1;
 	VAO VAO1;
 	VBO VBO1;
 	Construct con;
@@ -45,7 +47,7 @@ std::array<Vertex, 48> mHouseVertecies;
 		: a(scale), position(initialPosition), velocity(glm::vec3(0.0f)), r(red), g(green), b(blue), VBO1()
 	{
 		
-
+		//mVertecies.resize(36);
 
 		//Cube
 		if (figure == 1)
@@ -61,17 +63,15 @@ std::array<Vertex, 48> mHouseVertecies;
 		
 			VAO1.Unbind();
 			VBO1.Unbind();
-			planePoints[0] = glm::vec3(scale, -scale, scale) + position;
-			planePoints[1] = glm::vec3(scale, scale, scale) + position;
-			planePoints[2] = glm::vec3(scale, scale, -scale) + position;
-			planePoints[3] = glm::vec3(-scale, scale, -scale) + position;
+			
 		}
 		else if (figure == 2)
 		{
-			
+			mVertecies = con.Terrain(glm::vec3(red, green, blue), 10, 10 ,10);
+
 			VAO1.Bind();
 			VBO1.Bind();
-			glBufferData(GL_ARRAY_BUFFER, mPlaneVertecies.size() * sizeof(Vertex), mPlaneVertecies.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, mVertecies.size() * sizeof(Vertex), mVertecies.data(), GL_STATIC_DRAW);
 			VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
 			VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 			VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
@@ -98,10 +98,7 @@ std::array<Vertex, 48> mHouseVertecies;
 			VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 			VAO1.Unbind();
 			VBO1.Unbind();
-			planePoints[0] = glm::vec3(-scale, scale, scale) + position;
-			planePoints[1] = glm::vec3(scale, scale * 1.5, scale) + position;
-			planePoints[2] = glm::vec3(scale, scale * 1.5, -scale) + position;
-			planePoints[3] = glm::vec3(-scale, scale * 2, -scale) + position;
+			
 
 		}
 		else
@@ -116,10 +113,7 @@ std::array<Vertex, 48> mHouseVertecies;
 			VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 			VAO1.Unbind();
 			VBO1.Unbind();
-			planePoints[0] = glm::vec3(-scale, -scale, -scale) + position;
-			planePoints[1] = glm::vec3(scale, -scale, -scale) + position;
-			planePoints[2] = glm::vec3(scale, -scale, scale) + position;
-			planePoints[3] = glm::vec3(-scale, -scale, scale) + position;
+			
 		}
 		
 		sphere_radius = a; 
@@ -136,11 +130,11 @@ std::array<Vertex, 48> mHouseVertecies;
 	void inputs(GLFWwindow* window);
 
 	void Patrol(std::vector<double> coefficients);
-	
+	void InterpolatePoints(glm::vec4 xCoords, glm::vec4 yCoords, float maxPoint, float  minPoint);
 	bool CheckSphereCollision( Player& otherCube);
 	bool AABBCollision(Player& othercube);
 	
-	glm::vec3 calculateBarycentricCoordinates(glm::vec3& cpoint, glm::vec3 v0,glm::vec3 v1, glm::vec3 v2, bool climbable);
+	glm::vec3 calculateBarycentricCoordinates(glm::vec3& cpoint, bool climbable);
 
 public:
 	float a{ 1.0f };

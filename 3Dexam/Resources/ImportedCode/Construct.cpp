@@ -1,8 +1,11 @@
 #include "Construct.h"
+//code is from https://github.com/HansPluss/Compulsory-2-3DProg
 
-std::array<Vertex, 36> Construct::Cube(glm::vec3 Color)
+
+std::vector<Vertex> Construct::Cube(glm::vec3 Color)
 {
-    std::array<Vertex, 36> CubeArray;
+    std::vector<Vertex> CubeArray;
+    CubeArray.resize(36);
     glm::vec3 sizeXYZ = glm::vec3(1.f, 1.f, 1.f);
 
     // Front face vertices
@@ -116,6 +119,67 @@ std::array<Vertex, 6> Construct::Plane(glm::vec3 Color, glm::vec3 PointPosition)
     return PlaneArray;
 }
 
+std::vector<Vertex> Construct::Terrain(glm::vec3 Color, int terrainWidth, int terrainDepth, float terrainScale)
+{
+    
+    float waveAmplitude = 2.0f;
+    float waveFrequency = 1.0f;
+    // Generate vertices for the terrain grid
+    std::vector<Vertex> terrainVertices;
+    
+
+    // Generate vertices for the terrain grid
+    for (int z = 0; z < terrainDepth; ++z) {
+        for (int x = 0; x < terrainWidth; ++x) {
+            // Calculate the position of the vertex
+            float xPos = static_cast<float>(x) * terrainScale;
+            float zPos = static_cast<float>(z) * terrainScale;
+            float yPos = waveAmplitude * sin(xPos * waveFrequency) + waveAmplitude * cos(zPos * waveFrequency);
+
+            // Create the vertex
+            Vertex vertex;
+            vertex.x = xPos;
+            vertex.y = yPos;
+            vertex.z = zPos;
+            vertex.r = Color.x;
+            vertex.g = Color.y;
+            vertex.b = Color.z;
+
+            vertex.u = static_cast<float>(x) / (terrainWidth - 1);
+            vertex.v = static_cast<float>(z) / (terrainDepth - 1);
+            // Add the vertex to the terrain vertices vector
+            terrainVertices.push_back(vertex);
+        }
+    }
+
+    std::vector<Vertex> terrainTriangles;
+
+    // Generate triangles from the grid of vertices
+    for (int z = 0; z < terrainDepth - 1; ++z) {
+        for (int x = 0; x < terrainWidth - 1; ++x) {
+            // Calculate indices of the vertices in the current quad
+            int topLeftIndex = z * terrainWidth + x;
+            int topRightIndex = topLeftIndex + 1;
+            int bottomLeftIndex = (z + 1) * terrainWidth + x;
+            int bottomRightIndex = bottomLeftIndex + 1;
+
+            // Create triangles from the quad
+            // First triangle
+            terrainTriangles.push_back(terrainVertices[topLeftIndex]);
+            terrainTriangles.push_back(terrainVertices[topRightIndex]);
+            terrainTriangles.push_back(terrainVertices[bottomLeftIndex]);
+
+            // Second triangle
+            terrainTriangles.push_back(terrainVertices[topRightIndex]);
+            terrainTriangles.push_back(terrainVertices[bottomRightIndex]);
+            terrainTriangles.push_back(terrainVertices[bottomLeftIndex]);
+        }
+    }
+
+    return terrainTriangles;
+
+}
+
 std::array<Vertex, 100> Construct::Graph(glm::vec4 CubicFunc, float c, int iterations, const char* filename, int start)
 {
     std::array<Vertex, 100> GraphArray;
@@ -156,6 +220,7 @@ std::array<Vertex, 100> Construct::Graph(glm::vec4 CubicFunc, float c, int itera
     
     return GraphArray;
 }
+
 
 
 

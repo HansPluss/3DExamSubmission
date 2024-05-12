@@ -1,7 +1,8 @@
 #include "Texture.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
-
+//texture class is from the following github repo
+//https://github.com/tordelias/Compulsory-3.git
 
 
 

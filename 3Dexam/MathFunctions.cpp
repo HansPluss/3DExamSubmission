@@ -1,5 +1,5 @@
 #include "MathFunctions.h"
-
+// code is from https://github.com/HansPluss/Compulsory-2-Math
 glm::vec4 MathFunctions::CubicInterpolation(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	glm::mat<4, 4, double> A(

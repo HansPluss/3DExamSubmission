@@ -1,7 +1,8 @@
 #include "Player.h"
 #include <iostream>
 
-
+//Barycentric code for calculating all vertecies is from the following github repo
+//https://github.com/tordelias/Compulsory-3.git
 
 
 float Player::GetA()
@@ -39,7 +40,7 @@ void Player::UpdateVertices(float Xspeed, float Yspeed, float Zspeed)
 	position.y += Yspeed;
     position.z += Zspeed;*/
 	position += a * speedMagnitude;
-	cout << "current x speed: " << position.x << std::endl;
+	//cout << "current x speed: " << position.x << std::endl;
 	
 	
 	
@@ -188,57 +189,87 @@ void Player::Patrol(std::vector<double> coefficients)
 	//}
 }
 
+void Player::InterpolatePoints(glm::vec4 xCoords, glm::vec4 yCoords, float maxPoint, float  minPoint)
+{
+	MathFunctions math;
+	glm::vec4 coeffients = math.CubicInterpolation(xCoords.x, yCoords.x, xCoords.y, yCoords.y,xCoords.z , yCoords.z, xCoords.w, yCoords.w);
+	bool positiveDirection = true;
+	
+	// Update position based on the direction of motion
+	float stepSize = 0.01f;
+	position.x += stepSize * sign;
+	if (position.x > maxPoint) {
+		sign = -1;
+	}
+	if(position.x < minPoint) {
+		sign = 1;
+	}
+
+	
+	
+	position.z = coeffients.x * powf(position.x,3) + coeffients.y * powf(position.x, 2) + coeffients.z * position.x + 1 * coeffients.w;
+	//cout << "z Position " << position.z << endl;
+}
 
 
-glm::vec3 Player::calculateBarycentricCoordinates(glm::vec3& cpoint, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, bool climbable)
+
+glm::vec3 Player::calculateBarycentricCoordinates(glm::vec3& cpoint, bool climbable)
 {
 
 	glm::vec3 point = cpoint;
+	float u, v, w;
+	for (int i = 0; i < mVertecies.size() - 2; i += 3) {
+		
+		glm::vec3 v0 = glm::vec3((mVertecies[i].x * size1) + position.x, (mVertecies[i].y * size1) + position.y, (mVertecies[i].z * size1) + position.z);
+		glm::vec3 v1 = glm::vec3((mVertecies[i + 1].x * size1) + position.x, (mVertecies[i + 1].y * size1) + position.y, (mVertecies[i + 1].z * size1) + position.z);
+		glm::vec3 v2 = glm::vec3((mVertecies[i + 2].x * size1) + position.x, (mVertecies[i + 2].y * size1) + position.y, (mVertecies[i + 2].z * size1) + position.z);
+		
+		
+		
+		if (!climbable)
+		{
+			v0.y = 0;
+			v1.y = 0;
+			v2.y = 0;
+			point.y = 0;
 
-	if (!climbable)
-	{
-		planePoints[0] = glm::vec3(-1, 1, 1) + position;
-		planePoints[1] = glm::vec3(1, 1, 1) + position;
-		planePoints[2] = glm::vec3(1, 1, -1) + position;
-		planePoints[3] = glm::vec3(-1, 1, -1) + position;
-		v0.y = 0;
-		v1.y = 0;
-		v2.y = 0;
-		point.y = 0;
+
+		}
+
+
+		glm::vec3 v0v1(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z);
+		glm::vec3 v0v2(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z);
+		glm::vec3 v0p(point.x - v0.x, point.y - v0.y, point.z - v0.z);
+
+		// Compute dot products
+		float dot00 = glm::dot(v0v1, v0v1);
+		float dot01 = glm::dot(v0v1, v0v2);
+		float dot02 = glm::dot(v0v1, v0p);
+		float dot11 = glm::dot(v0v2, v0v2);
+		float dot12 = glm::dot(v0v2, v0p);
+
+		// Compute barycentric coordinates
+		float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+		u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+		v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+		w = 1 - u - v;
+		if (u > 0 && v > 0 && w > 0) {
+			if (climbable)
+			{
+				float heightV6 = v0.y * w + v1.y * u + v2.y * v;
+				cpoint.y = heightV6 + 1; // -19 is planePosition.y -2, offset to have player above 
+				//std::cout << "Collision " << u << std::endl;
+			}
+			else
+			{
+				cpoint.y += 2;
+				//std::cout << "Collision " << u << std::endl;
+			}
+		}
 
 
 	}
-
-
-	glm::vec3 v0v1(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z);
-	glm::vec3 v0v2(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z);
-	glm::vec3 v0p(point.x - v0.x, point.y - v0.y, point.z - v0.z);
-
-	// Compute dot products
-	float dot00 = glm::dot(v0v1, v0v1);
-	float dot01 = glm::dot(v0v1, v0v2);
-	float dot02 = glm::dot(v0v1, v0p);
-	float dot11 = glm::dot(v0v2, v0v2);
-	float dot12 = glm::dot(v0v2, v0p);
-
-	// Compute barycentric coordinates
-	float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-	float w = 1 - u - v;
-	if (u > 0 && v > 0 && w > 0) {
-		if (climbable)
-		{
-			float heightV6 = v0.y * w + v1.y * u + v2.y * v;
-			cpoint.y = heightV6 + 1; // -19 is planePosition.y -2, offset to have player above 
-			//std::cout << "Collision " << u << std::endl;
-		}
-		else
-		{
-			cpoint.y += 2;
-			//std::cout << "Collision " << u << std::endl;
-		}
-	}
+	
 
 	return glm::vec3(u, v, w);
 
