@@ -19,6 +19,6 @@ public:
 	std::vector<Vertex> Cube(glm::vec3 Color);
 	std::array<Vertex, 6> Plane(glm::vec3 Color, glm::vec3 PointPosition);
 	std::vector<Vertex> Terrain(glm::vec3 Color, int terrainWidth, int terrainDepth, float terrainScale);
-	std::array<Vertex,100> Graph(glm::vec4 CubicFunc, float c, int iterations, const char* filename, int start);
+	std::vector<Vertex> Graph(float c, int iterations, int start);
 };
 

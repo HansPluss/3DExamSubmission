@@ -82,7 +82,17 @@ std::vector<Vertex> terrainVertecies;
 
 		else if (figure == 3)
 		{
-			
+			mVertecies = con.Graph(1,20,-20);
+
+			VAO1.Bind();
+			VBO1.Bind();
+			glBufferData(GL_ARRAY_BUFFER, mVertecies.size() * sizeof(Vertex), mVertecies.data(), GL_STATIC_DRAW);
+			VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+			VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+			VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+			VAO1.Unbind();
+			VBO1.Unbind();
 		
 		}
 		else if (figure == 4) {

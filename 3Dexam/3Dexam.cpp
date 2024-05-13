@@ -69,12 +69,14 @@ int main()
     //glEnable(GL_DEPTH_TEST);
     
     Player myPlayer(1.0f, glm::vec3(0, 0, 20), 0.1f, 0.0f, 0.5f, 1);
-    Player terrain(1.0f, glm::vec3(0, 0, 0), 0.1f, 0.0f, 0.5f, 2);
-    Player NPC(1.0f, glm::vec3(1, 0, 10), 0.1f, 0.1f, 0.1f, 1);
+    Player terrain(1.0f, glm::vec3(-20, 0, 0), 0.1f, 0.0f, 0.5f, 2);
+    Player NPC(1.0f, glm::vec3(1, 1, 10), 1.0f, 1.0f, 1.0f, 1);
 
-    glm::uvec4 xCoords = glm::vec4(1, 2, 3, 10);
+    Player collectible(1.0f, glm::vec3(0, 1, 10), 0.1f, 0.6f, 0.5f, 1);
+    glm::uvec4 xCoords = glm::vec4(10, 2, 3, 20);
     glm::uvec4 yCoords = glm::vec4(2, 4, 2, 5);
 
+    Player graph(1.0f, glm::vec3(0, 0, 0), 0.1f, 0.6f, 0.5f, 3);
 
     Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 10.0f, 40.0f));
 
@@ -100,22 +102,33 @@ int main()
         myPlayer.inputs(window);
         camera.Inputs(window);
        
+        collectible.CheckSphereCollision(myPlayer);
         terrain.calculateBarycentricCoordinates(myPlayer.position, true);
-
-        NPC.InterpolatePoints(xCoords, yCoords, 10, 1);
+        terrain.calculateBarycentricCoordinates(collectible.position, true);
+        terrain.calculateBarycentricCoordinates(NPC.position, true);
+        NPC.InterpolatePoints(xCoords, yCoords, xCoords.x, xCoords.w);
         //Set render distance and FOV
-        glm::mat4 viewproj = camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+        glm::mat4 viewproj = camera.Matrix(45.0f, 0.1f, 1000.0f, shaderProgram, "camMatrix");
 
         glBindTexture(GL_TEXTURE_2D, texture.texture);
        
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, myPlayer.position);
+        //model = glm::scale(model, glm::vec3(0, 0, 0)); for scaling the object
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(viewproj * model));
         myPlayer.BindVAO();
         myPlayer.GetVBO().Bind();
         glDrawArrays(GL_TRIANGLES, 0, myPlayer.mVertecies.size());
         myPlayer.UnbindVAO();
+
+        glm::mat4 Collectiblemodel = glm::mat4(1.0f);
+        Collectiblemodel = glm::translate(Collectiblemodel, collectible.position);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(viewproj * Collectiblemodel));
+        collectible.BindVAO();
+        collectible.GetVBO().Bind();
+        glDrawArrays(GL_TRIANGLES, 0, collectible.mVertecies.size());
+        collectible.UnbindVAO();
 
         glBindTexture(GL_TEXTURE_2D, texture.texture);
         glm::mat4 NPCmodel = glm::mat4(1.0f);
@@ -135,6 +148,14 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, terrain.mVertecies.size());
         terrain.UnbindVAO();
         
+        glBindTexture(GL_TEXTURE_2D, texture.texture);
+        glm::mat4 graphmodel = glm::mat4(1.0f);
+        graphmodel = glm::translate(graphmodel, graph.position);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(viewproj * graphmodel));
+        graph.BindVAO();
+        graph.GetVBO().Bind();
+        glDrawArrays(GL_LINE_STRIP, 0, graph.mVertecies.size());
+        graph.UnbindVAO();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
